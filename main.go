@@ -17,6 +17,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -87,7 +88,7 @@ var Version string
 func main() {
 	log.SetFlags(0)
 	var (
-		installFlag   = flag.Bool("install", false, "")
+		installFlag   = flag.Bool("install", true, "")
 		uninstallFlag = flag.Bool("uninstall", false, "")
 		pkcs12Flag    = flag.Bool("pkcs12", false, "")
 		ecdsaFlag     = flag.Bool("ecdsa", false, "")
@@ -165,7 +166,12 @@ type mkcert struct {
 }
 
 func (m *mkcert) Run(args []string) {
-	m.CAROOT = getCAROOT()
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalln("ERROR: failed to find pwd dir")
+	}
+
+	m.CAROOT = path.Join(pwd, "mkcertCA")
 	if m.CAROOT == "" {
 		log.Fatalln("ERROR: failed to find the default CA location, set one as the CAROOT env var")
 	}
